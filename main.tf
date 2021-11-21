@@ -1,4 +1,14 @@
-# EC2 Instances
+###############################################################
+# This module creates:
+# EC2 Webservers instances
+# EC2 Databases instances
+# Application Load Balancer
+# S3 Bucket reference for ALB
+# Security Groups
+# User Data for Nginx deployment
+###############################################################
+
+# EC2 Instances Creation
 resource "aws_instance" "webservers" {
   count                  = var.instances_to_create
   ami                    = data.aws_ami.ubuntu.id
@@ -26,8 +36,7 @@ resource "aws_instance" "databases" {
   }
 }
 
-
-# Application Load Balancer
+# Application Load Balancer Creation
 resource "aws_alb" "webservers" {
   name               = "web-alb"
   internal           = false
@@ -78,13 +87,10 @@ resource "aws_alb_target_group_attachment" "webservers" {
   port             = 80
 }
 
-
-
-# Data
+# S3 Bucket Data
 data "aws_s3_bucket" "main_bucket" {
   bucket = var.bucket_name
 }
-
 
 # Security Groups
 

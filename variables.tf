@@ -1,9 +1,11 @@
 variable "private_key_path" {
-  default = "C:\\Keys\\Homework1.pem"
+  description = "Private key path"
+  default     = "C:\\Keys\\Homework1.pem"
 }
 
 variable "key_name" {
-  default = "Homework1"
+  description = "Private key name"
+  default     = "Homework1"
 }
 
 data "aws_ami" "ubuntu" {
