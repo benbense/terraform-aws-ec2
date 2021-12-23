@@ -32,8 +32,8 @@ resource "aws_instance" "consul_servers" {
   count                  = var.consul_servers_count
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
-  availability_zone      = var.available_zone_names[count.index]
-  subnet_id              = element(var.private_subnets_ids, count.index)
+  availability_zone      = var.available_zone_names[count.index % length(var.available_zone_names)]
+  subnet_id              = var.private_subnets_ids[count.index % length(var.private_subnets_ids)]
   vpc_security_group_ids = [aws_security_group.consul_sg.id]
   key_name               = aws_key_pair.server_key.key_name
   tags                   = zipmap(var.servers_tags_structure, ["consul", "service_discovery", "server", "Consul-Server-${count.index}", "private", "kandula", "Ben"])
@@ -54,8 +54,8 @@ resource "aws_instance" "jenkins_nodes" {
   count                  = var.jenkins_nodes_count
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
-  availability_zone      = var.available_zone_names[count.index]
-  subnet_id              = element(var.private_subnets_ids, count.index)
+  availability_zone      = var.available_zone_names[count.index % length(var.available_zone_names)]
+  subnet_id              = var.private_subnets_ids[count.index % length(var.private_subnets_ids)]
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
   key_name               = aws_key_pair.server_key.key_name
   tags                   = zipmap(var.servers_tags_structure, ["jenkins", "service_discovery", "node", "Jenkins-Node-${count.index}", "private", "kandula", "Ben"])
