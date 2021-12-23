@@ -74,3 +74,9 @@ variable "ansible_ingress_ports" {
   description = "Ansible host ingress ports list"
   default     = [80, 8080, 22]
 }
+
+variable "servers_tags_structure" {
+  type        = list(string)
+  description = "Consul server tags map"
+  default     = ["service", "service_role", "instance_type", "Name", "subnet_type", "project", "owner"]
+}
