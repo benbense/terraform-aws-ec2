@@ -8,23 +8,6 @@
 # User Data for Nginx deployment
 ###############################################################
 
-########################Create Keys##########################
-resource "tls_private_key" "server_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-resource "aws_key_pair" "server_key" {
-  key_name   = "server_key"
-  public_key = tls_private_key.server_key.public_key_openssh
-}
-
-resource "local_file" "server_key" {
-  sensitive_content = tls_private_key.server_key.private_key_pem
-  filename          = var.private_key_path
-}
-
-
 ########################EC2 Instances##########################
 
 # Consul Servers
@@ -34,7 +17,7 @@ resource "aws_instance" "consul_servers" {
   instance_type          = var.instance_type
   subnet_id              = element(var.private_subnets_ids, count.index)
   vpc_security_group_ids = [aws_security_group.consul_sg.id]
-  key_name               = aws_key_pair.server_key.key_name
+  key_name               = var.server_key
   tags                   = zipmap(var.servers_tags_structure, ["consul", "service_discovery", "server", "Consul-Server-${count.index}", "private", "kandula", "Ben"])
 
 }
@@ -44,7 +27,7 @@ resource "aws_instance" "jenkins_server" {
   instance_type          = var.instance_type
   subnet_id              = var.private_subnets_ids[0]
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
-  key_name               = aws_key_pair.server_key.key_name
+  key_name               = var.server_key
   tags                   = zipmap(var.servers_tags_structure, ["jenkins", "cicd", "server", "Jenkins-Server", "private", "kandula", "Ben"])
 }
 
@@ -54,7 +37,7 @@ resource "aws_instance" "jenkins_nodes" {
   instance_type          = var.instance_type
   subnet_id              = element(var.private_subnets_ids, count.index)
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
-  key_name               = aws_key_pair.server_key.key_name
+  key_name               = var.server_key
   tags                   = zipmap(var.servers_tags_structure, ["jenkins", "service_discovery", "node", "Jenkins-Node-${count.index}", "private", "kandula", "Ben"])
 }
 
@@ -63,7 +46,7 @@ resource "aws_instance" "bastion_server" {
   instance_type               = var.instance_type
   subnet_id                   = var.private_subnets_ids[0]
   vpc_security_group_ids      = [aws_security_group.bastion_sg.id]
-  key_name                    = aws_key_pair.server_key.key_name
+  key_name                    = var.server_key
   associate_public_ip_address = true
   tags                        = zipmap(var.servers_tags_structure, ["bastion", "bastion", "server", "Bastion-Server", "public", "kandula", "Ben"])
 }
@@ -73,7 +56,7 @@ resource "aws_instance" "ansible_server" {
   instance_type          = var.instance_type
   subnet_id              = var.private_subnets_ids[0]
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
-  key_name               = aws_key_pair.server_key.key_name
+  key_name               = var.server_key
   tags                   = zipmap(var.servers_tags_structure, ["ansible", "configuration_management", "server", "Ansible-Server", "private", "kandula", "Ben"])
 }
 

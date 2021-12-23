@@ -87,3 +87,8 @@ variable "instance_profile_name" {
   type        = string
   description = "IAM role name for instance"
 }
+
+variable "server_key" {
+  type        = string
+  description = "Public SSH key name"
+}
