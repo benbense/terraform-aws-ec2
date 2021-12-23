@@ -44,7 +44,7 @@ resource "aws_instance" "jenkins_nodes" {
 resource "aws_instance" "bastion_server" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.instance_type
-  subnet_id                   = var.private_subnets_ids[0]
+  subnet_id                   = var.public_subnets_ids[0]
   vpc_security_group_ids      = [aws_security_group.bastion_sg.id]
   key_name                    = var.server_key
   associate_public_ip_address = true
