@@ -47,7 +47,7 @@ resource "aws_instance" "jenkins_server" {
   subnet_id              = var.private_subnets_ids[0]
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
   key_name               = aws_key_pair.server_key.key_name
-  tags                   = zipmap(var.servers_tags_structure, ["jenkins", "cicd", "server", "${aws_instance.jenkins_server[count.index].name}", "private", "kandula", "Ben"])
+  tags                   = zipmap(var.servers_tags_structure, ["jenkins", "cicd", "server", "${aws_instance.jenkins_server.name}", "private", "kandula", "Ben"])
 }
 
 resource "aws_instance" "jenkins_nodes" {
@@ -68,7 +68,7 @@ resource "aws_instance" "bastion_server" {
   subnet_id              = var.private_subnets_ids[0]
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
   key_name               = aws_key_pair.server_key.key_name
-  tags                   = zipmap(var.servers_tags_structure, ["bastion", "bastion", "server", "${aws_instance.bastion_server[count.index].name}", "public", "kandula", "Ben"])
+  tags                   = zipmap(var.servers_tags_structure, ["bastion", "bastion", "server", "${aws_instance.bastion_server.name}", "public", "kandula", "Ben"])
 }
 
 resource "aws_instance" "ansible_server" {
@@ -78,7 +78,7 @@ resource "aws_instance" "ansible_server" {
   subnet_id              = var.private_subnets_ids[0]
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
   key_name               = aws_key_pair.server_key.key_name
-  tags                   = zipmap(var.servers_tags_structure, ["ansible", "configuration_management", "server", "${aws_instance.ansible_server[count.index].name}", "private", "kandula", "Ben"])
+  tags                   = zipmap(var.servers_tags_structure, ["ansible", "configuration_management", "server", "${aws_instance.ansible_server.name}", "private", "kandula", "Ben"])
 }
 
 ######################## ALB's ###########################
@@ -107,7 +107,7 @@ resource "aws_alb_target_group_attachment" "consul_servers_alb_attach" {
 
 
 resource "aws_alb_target_group" "consul_alb_tg" {
-  name     = "consul_alb_tg"
+  name     = "consul-alb-tg"
   port     = 8500
   protocol = "HTTP"
   vpc_id   = var.vpc_id
@@ -161,7 +161,7 @@ resource "aws_alb_target_group_attachment" "jenkins_server_alb_attach" {
 
 
 resource "aws_alb_target_group" "jenkins_alb_tg" {
-  name     = "jenkins_alb_tg"
+  name     = "jenkins-alb-tg"
   port     = 80
   protocol = "HTTP"
   vpc_id   = var.vpc_id

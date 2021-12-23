@@ -47,7 +47,6 @@ variable "consul_servers_count" {
   type        = number
 }
 
-
 variable "jenkins_nodes_count" {
   description = "How much Jenkins nodes to create"
   type        = number
