@@ -36,7 +36,7 @@ resource "aws_instance" "consul_servers" {
   subnet_id              = element(var.private_subnets_ids, count.index)
   vpc_security_group_ids = [aws_security_group.consul_sg.id]
   key_name               = aws_key_pair.server_key.key_name
-  tags                   = zipmap(var.servers_tags_structure, ["consul", "service_discovery", "server", "${aws_instance.consul_servers[count.index].name}", "private", "kandula", "Ben"])
+  tags                   = zipmap(var.servers_tags_structure, ["consul", "service_discovery", "server", "Consul-Server-${count.index}", "private", "kandula", "Ben"])
 
 }
 
@@ -47,7 +47,7 @@ resource "aws_instance" "jenkins_server" {
   subnet_id              = var.private_subnets_ids[0]
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
   key_name               = aws_key_pair.server_key.key_name
-  tags                   = zipmap(var.servers_tags_structure, ["jenkins", "cicd", "server", "${aws_instance.jenkins_server.name}", "private", "kandula", "Ben"])
+  tags                   = zipmap(var.servers_tags_structure, ["jenkins", "cicd", "server", "Jenkins-Server", "private", "kandula", "Ben"])
 }
 
 resource "aws_instance" "jenkins_nodes" {
@@ -58,7 +58,7 @@ resource "aws_instance" "jenkins_nodes" {
   subnet_id              = element(var.private_subnets_ids, count.index)
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
   key_name               = aws_key_pair.server_key.key_name
-  tags                   = zipmap(var.servers_tags_structure, ["jenkins", "service_discovery", "node", "${aws_instance.jenkins_nodes[count.index].name}", "private", "kandula", "Ben"])
+  tags                   = zipmap(var.servers_tags_structure, ["jenkins", "service_discovery", "node", "Jenkins-Node-${count.index}", "private", "kandula", "Ben"])
 }
 
 resource "aws_instance" "bastion_server" {
@@ -68,7 +68,7 @@ resource "aws_instance" "bastion_server" {
   subnet_id              = var.private_subnets_ids[0]
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
   key_name               = aws_key_pair.server_key.key_name
-  tags                   = zipmap(var.servers_tags_structure, ["bastion", "bastion", "server", "${aws_instance.bastion_server.name}", "public", "kandula", "Ben"])
+  tags                   = zipmap(var.servers_tags_structure, ["bastion", "bastion", "server", "Bastion-Server", "public", "kandula", "Ben"])
 }
 
 resource "aws_instance" "ansible_server" {
@@ -78,7 +78,7 @@ resource "aws_instance" "ansible_server" {
   subnet_id              = var.private_subnets_ids[0]
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
   key_name               = aws_key_pair.server_key.key_name
-  tags                   = zipmap(var.servers_tags_structure, ["ansible", "configuration_management", "server", "${aws_instance.ansible_server.name}", "private", "kandula", "Ben"])
+  tags                   = zipmap(var.servers_tags_structure, ["ansible", "configuration_management", "server", "Ansible-Server", "private", "kandula", "Ben"])
 }
 
 ######################## ALB's ###########################
