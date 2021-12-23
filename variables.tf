@@ -45,11 +45,14 @@ variable "bucket_name" {
 variable "consul_servers_count" {
   description = "How much Consul servers to create"
   type        = number
-  validation {
-    condition     = var.consul_servers_count == 1 || var.consul_servers_count == 3 || var.consul_servers_count == 5
-    error_message = "Invalid Consul servers amount."
-  }
 }
+
+
+variable "jenkins_nodes_count" {
+  description = "How much Jenkins nodes to create"
+  type        = number
+}
+
 
 variable "consul_ingress_ports" {
   type        = list(number)
@@ -79,4 +82,9 @@ variable "servers_tags_structure" {
   type        = list(string)
   description = "Consul server tags map"
   default     = ["service", "service_role", "instance_type", "Name", "subnet_type", "project", "owner"]
+}
+
+variable "instance_profile_name" {
+  type        = string
+  description = "IAM role name for instance"
 }
