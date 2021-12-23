@@ -153,9 +153,8 @@ resource "aws_alb" "jenkins_alb" {
 }
 
 resource "aws_alb_target_group_attachment" "jenkins_server_alb_attach" {
-  count            = length(aws_instance.jenkins_server)
   target_group_arn = aws_alb_target_group.jenkins_alb_tg.arn
-  target_id        = aws_instance.jenkins_server.*.id[count.index]
+  target_id        = aws_instance.jenkins_server.id
   port             = 80
 }
 
