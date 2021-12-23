@@ -59,12 +59,13 @@ resource "aws_instance" "jenkins_nodes" {
 }
 
 resource "aws_instance" "bastion_server" {
-  ami                    = data.aws_ami.ubuntu.id
-  instance_type          = var.instance_type
-  subnet_id              = var.private_subnets_ids[0]
-  vpc_security_group_ids = [aws_security_group.bastion_sg.id]
-  key_name               = aws_key_pair.server_key.key_name
-  tags                   = zipmap(var.servers_tags_structure, ["bastion", "bastion", "server", "Bastion-Server", "public", "kandula", "Ben"])
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = var.instance_type
+  subnet_id                   = var.private_subnets_ids[0]
+  vpc_security_group_ids      = [aws_security_group.bastion_sg.id]
+  key_name                    = aws_key_pair.server_key.key_name
+  associate_public_ip_address = true
+  tags                        = zipmap(var.servers_tags_structure, ["bastion", "bastion", "server", "Bastion-Server", "public", "kandula", "Ben"])
 }
 
 resource "aws_instance" "ansible_server" {
