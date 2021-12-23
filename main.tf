@@ -32,8 +32,7 @@ resource "aws_instance" "consul_servers" {
   count                  = var.consul_servers_count
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
-  availability_zone      = var.available_zone_names[count.index % length(var.available_zone_names)]
-  subnet_id              = var.private_subnets_ids[count.index % length(var.private_subnets_ids)]
+  subnet_id              = element(var.private_subnets_ids, count.index)
   vpc_security_group_ids = [aws_security_group.consul_sg.id]
   key_name               = aws_key_pair.server_key.key_name
   tags                   = zipmap(var.servers_tags_structure, ["consul", "service_discovery", "server", "Consul-Server-${count.index}", "private", "kandula", "Ben"])
@@ -43,7 +42,6 @@ resource "aws_instance" "consul_servers" {
 resource "aws_instance" "jenkins_server" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
-  availability_zone      = var.available_zone_names[0]
   subnet_id              = var.private_subnets_ids[0]
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
   key_name               = aws_key_pair.server_key.key_name
@@ -54,8 +52,7 @@ resource "aws_instance" "jenkins_nodes" {
   count                  = var.jenkins_nodes_count
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
-  availability_zone      = var.available_zone_names[count.index % length(var.available_zone_names)]
-  subnet_id              = var.private_subnets_ids[count.index % length(var.private_subnets_ids)]
+  subnet_id              = element(var.private_subnets_ids, count.index)
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
   key_name               = aws_key_pair.server_key.key_name
   tags                   = zipmap(var.servers_tags_structure, ["jenkins", "service_discovery", "node", "Jenkins-Node-${count.index}", "private", "kandula", "Ben"])
@@ -64,7 +61,6 @@ resource "aws_instance" "jenkins_nodes" {
 resource "aws_instance" "bastion_server" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
-  availability_zone      = var.available_zone_names[0]
   subnet_id              = var.private_subnets_ids[0]
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
   key_name               = aws_key_pair.server_key.key_name
@@ -74,7 +70,6 @@ resource "aws_instance" "bastion_server" {
 resource "aws_instance" "ansible_server" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
-  availability_zone      = var.available_zone_names[0]
   subnet_id              = var.private_subnets_ids[0]
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
   key_name               = aws_key_pair.server_key.key_name
