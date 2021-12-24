@@ -51,6 +51,7 @@ resource "aws_instance" "bastion_server" {
   vpc_security_group_ids      = [aws_security_group.bastion_sg.id]
   key_name                    = var.server_key
   associate_public_ip_address = true
+  iam_instance_profile        = var.instance_profile_name
   tags                        = zipmap(var.servers_tags_structure, ["bastion", "bastion", "server", "Bastion-Server", "public", "kandula", "Ben", "true", "ubuntu"])
 }
 
