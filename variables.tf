@@ -56,7 +56,7 @@ variable "jenkins_nodes_count" {
 variable "consul_ingress_ports" {
   type        = list(number)
   description = "Consul ingress ports list"
-  default     = [8600, 8500, 8300, 8301, 8302]
+  default     = [8600, 8500, 8300, 8301, 8302, 22]
 }
 
 variable "jenkins_ingress_ports" {
@@ -80,7 +80,7 @@ variable "ansible_ingress_ports" {
 variable "servers_tags_structure" {
   type        = list(string)
   description = "Consul server tags map"
-  default     = ["service", "service_role", "instance_type", "Name", "subnet_type", "project", "owner"]
+  default     = ["service", "service_role", "instance_type", "Name", "subnet_type", "project", "owner", "os_type", "is_consul_monitored"]
 }
 
 variable "instance_profile_name" {
