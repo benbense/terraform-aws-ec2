@@ -19,6 +19,7 @@ resource "aws_instance" "consul_servers" {
   vpc_security_group_ids = [aws_security_group.consul_sg.id]
   key_name               = var.server_key
   source_dest_check      = false
+  iam_instance_profile   = var.instance_profile_name
   tags                   = zipmap(var.servers_tags_structure, ["consul", "service_discovery", "server", "Consul-Server-${count.index}", "private", "kandula", "Ben", "true", "ubuntu"])
 
 }
@@ -30,6 +31,7 @@ resource "aws_instance" "jenkins_server" {
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
   key_name               = var.server_key
   source_dest_check      = false
+  iam_instance_profile   = var.instance_profile_name
   tags                   = zipmap(var.servers_tags_structure, ["jenkins", "cicd", "server", "Jenkins-Server", "private", "kandula", "Ben", "true", "ubuntu"])
 }
 
@@ -41,6 +43,7 @@ resource "aws_instance" "jenkins_nodes" {
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
   key_name               = var.server_key
   source_dest_check      = false
+  iam_instance_profile   = var.instance_profile_name
   tags                   = zipmap(var.servers_tags_structure, ["jenkins", "service_discovery", "node", "Jenkins-Node-${count.index}", "private", "kandula", "Ben", "true", "ubuntu"])
 }
 
@@ -62,6 +65,7 @@ resource "aws_instance" "ansible_server" {
   vpc_security_group_ids = [aws_security_group.ansible_sg.id]
   key_name               = var.server_key
   source_dest_check      = false
+  iam_instance_profile   = var.instance_profile_name
   tags                   = zipmap(var.servers_tags_structure, ["ansible", "configuration_management", "server", "Ansible-Server", "private", "kandula", "Ben", "true", "ubuntu"])
 }
 
