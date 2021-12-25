@@ -117,7 +117,7 @@ resource "aws_alb_target_group" "consul_alb_tg" {
 
 resource "aws_alb_listener" "consul_alb_listener" {
   load_balancer_arn = aws_alb.consul_alb.arn
-  port              = "8500"
+  port              = "80"
   protocol          = "HTTP"
   default_action {
     type             = "forward"
@@ -143,7 +143,7 @@ resource "aws_alb" "jenkins_alb" {
 resource "aws_alb_target_group_attachment" "jenkins_server_alb_attach" {
   target_group_arn = aws_alb_target_group.jenkins_alb_tg.arn
   target_id        = aws_instance.jenkins_server.id
-  port             = 80
+  port             = 8080
 }
 
 
@@ -158,9 +158,9 @@ resource "aws_alb_target_group" "jenkins_alb_tg" {
     enabled         = true
   }
   health_check {
-    port                = 80
+    port                = 8080
     protocol            = "HTTP"
-    path                = "/"
+    path                = "/login"
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 3
