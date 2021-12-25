@@ -107,7 +107,7 @@ resource "aws_alb_target_group" "consul_alb_tg" {
   health_check {
     port                = 8500
     protocol            = "HTTP"
-    path                = "/"
+    path                = "/v1/status/leader"
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 3
