@@ -90,7 +90,7 @@ resource "aws_alb_target_group_attachment" "consul_servers_alb_attach" {
   count            = length(aws_instance.consul_servers)
   target_group_arn = aws_alb_target_group.consul_alb_tg.arn
   target_id        = aws_instance.consul_servers.*.id[count.index]
-  port             = 80
+  port             = 8500
 }
 
 
@@ -350,16 +350,3 @@ resource "aws_security_group" "outbound_any" {
     "Name" = "outbound_any"
   }
 }
-
-# User Data
-locals {
-  webservers-instance-userdata = <<USERDATA
-#!/bin/bash
-sudo apt update -y
-sudo apt install nginx -y
-sed -i "s/nginx/Grandpa's Whiskey $HOSTNAME/g" /var/www/html/index.nginx-debian.html
-sed -i '15,23d' /var/www/html/index.nginx-debian.html
-service nginx restart
-USERDATA
-}
-
