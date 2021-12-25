@@ -44,7 +44,7 @@ resource "aws_instance" "jenkins_nodes" {
   key_name               = var.server_key
   source_dest_check      = false
   iam_instance_profile   = var.instance_profile_name
-  tags                   = zipmap(var.servers_tags_structure, ["jenkins", "service_discovery", "node", "Jenkins-Node-${count.index}", "private", "kandula", "Ben", "true", "ubuntu"])
+  tags                   = zipmap(var.servers_tags_structure, ["jenkins", "cicd", "node", "Jenkins-Node-${count.index}", "private", "kandula", "Ben", "true", "ubuntu"])
 }
 
 resource "aws_instance" "bastion_server" {
