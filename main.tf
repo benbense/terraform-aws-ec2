@@ -96,7 +96,7 @@ resource "aws_alb_target_group_attachment" "consul_servers_alb_attach" {
 
 resource "aws_alb_target_group" "consul_alb_tg" {
   name     = "consul-alb-tg"
-  port     = 8500
+  port     = 80
   protocol = "HTTP"
   vpc_id   = var.vpc_id
   stickiness {
