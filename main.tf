@@ -80,7 +80,7 @@ resource "aws_alb" "consul_alb" {
   security_groups    = [aws_security_group.consul_sg.id]
   subnets            = var.public_subnets_ids
   access_logs {
-    bucket  = data.aws_s3_bucket.main_bucket.bucket
+    bucket  = resource.aws_s3_bucket.s3_logs_bucket.bucket
     prefix  = "logs/consul-alb"
     enabled = true
   }
@@ -134,7 +134,7 @@ resource "aws_alb" "jenkins_alb" {
   security_groups    = [aws_security_group.jenkins_sg.id]
   subnets            = var.public_subnets_ids
   access_logs {
-    bucket  = data.aws_s3_bucket.main_bucket.bucket
+    bucket  = resource.aws_s3_bucket.s3_logs_bucket.bucket
     prefix  = "logs/jenkins-alb"
     enabled = true
   }
@@ -176,11 +176,6 @@ resource "aws_alb_listener" "jenkins_alb_listener" {
     type             = "forward"
     target_group_arn = aws_alb_target_group.jenkins_alb_tg.arn
   }
-}
-
-# S3 Bucket Data
-data "aws_s3_bucket" "main_bucket" {
-  bucket = var.bucket_name
 }
 
 # Security Groups
@@ -349,4 +344,51 @@ resource "aws_security_group" "outbound_any" {
   tags = {
     "Name" = "outbound_any"
   }
+}
+
+
+########################### S3 ##########################
+
+resource "aws_s3_bucket" "s3_logs_bucket" {
+  bucket        = var.bucket_name
+  force_destroy = true # only for testing
+  acl           = "log-delivery-write"
+}
+
+resource "aws_s3_bucket_policy" "this" {
+  bucket = aws_s3_bucket.s3_logs_bucket.id
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : "arn:aws:iam::${var.elb_account_id}:root"
+        },
+        "Action" : "s3:PutObject",
+        "Resource" : "arn:aws:s3:::${var.bucket_name}/*"
+      },
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "delivery.logs.amazonaws.com"
+        },
+        "Action" : "s3:PutObject",
+        "Resource" : "arn:aws:s3:::${var.bucket_name}/*",
+        "Condition" : {
+          "StringEquals" : {
+            "s3:x-amz-acl" : "bucket-owner-full-control"
+          }
+        }
+      },
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "delivery.logs.amazonaws.com"
+        },
+        "Action" : "s3:GetBucketAcl",
+        "Resource" : "arn:aws:s3:::${var.bucket_name}"
+      }
+    ]
+  })
 }
