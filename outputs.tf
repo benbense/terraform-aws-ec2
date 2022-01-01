@@ -37,3 +37,8 @@ output "jenkins_alb_public_dns" {
   description = "Jenkins ALB Public DNS name"
   value       = aws_alb.jenkins_alb.dns_name
 }
+
+output "jenkins_nodes_ids" {
+  description = "ID of the Jenkins Nodes Instances"
+  value       = aws_instance.jenkins_nodes.*.id
+}
