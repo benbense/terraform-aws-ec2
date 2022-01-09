@@ -53,28 +53,28 @@ variable "jenkins_nodes_count" {
 }
 
 
-variable "consul_ingress_ports" {
+variable "consul_server_ingress_ports" {
   type        = list(number)
   description = "Consul ingress ports list"
-  default     = [8600, 8500, 8300, 8301, 8302, 22, 80]
+  default     = [8600, 8500, 8300, 8301]
+}
+
+variable "consul_agent_ingress_ports" {
+  type        = list(number)
+  description = "Consul agent ingress ports list"
+  default     = [8301, 8600]
 }
 
 variable "jenkins_ingress_ports" {
   type        = list(number)
   description = "Jenkins ingress ports list"
-  default     = [49187, 80, 8080, 22]
+  default     = [80, 8080]
 }
 
-variable "bastion_ingress_ports" {
+variable "ssh_ingress_ports" {
   type        = list(number)
-  description = "Bastion host ingress ports list"
+  description = "SSH ingress ports list"
   default     = [22]
-}
-
-variable "ansible_ingress_ports" {
-  type        = list(number)
-  description = "Ansible host ingress ports list"
-  default     = [80, 8080, 22]
 }
 
 variable "servers_tags_structure" {
