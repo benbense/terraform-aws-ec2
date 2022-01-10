@@ -16,7 +16,7 @@ resource "aws_instance" "consul_servers" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
   subnet_id              = element(var.private_subnets_ids, count.index)
-  vpc_security_group_ids = [aws_security_group.consul_sg.id, aws_security_group.ssh_ingress.id]
+  vpc_security_group_ids = [aws_security_group.consul_servers_sg.id, aws_security_group.ssh_ingress.id]
   key_name               = var.server_key
   source_dest_check      = false
   iam_instance_profile   = var.instance_profile_name
@@ -77,7 +77,6 @@ resource "aws_alb" "consul_alb" {
   name               = "consul-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.consul_sg.id]
   subnets            = var.public_subnets_ids
   access_logs {
     bucket  = resource.aws_s3_bucket.s3_logs_bucket.bucket
