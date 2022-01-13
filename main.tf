@@ -77,6 +77,7 @@ resource "aws_alb" "consul_alb" {
   name               = "consul-alb"
   internal           = false
   load_balancer_type = "application"
+  security_groups    = [aws_security_group.https_sg.id]
   subnets            = var.public_subnets_ids
   access_logs {
     bucket  = resource.aws_s3_bucket.s3_logs_bucket.bucket
@@ -116,8 +117,9 @@ resource "aws_alb_target_group" "consul_alb_tg" {
 
 resource "aws_alb_listener" "consul_alb_listener" {
   load_balancer_arn = aws_alb.consul_alb.arn
-  port              = "80"
-  protocol          = "HTTP"
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = var.kandula_ssl_cert
   default_action {
     type             = "forward"
     target_group_arn = aws_alb_target_group.consul_alb_tg.arn
@@ -130,7 +132,7 @@ resource "aws_alb" "jenkins_alb" {
   name               = "jenkins-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.jenkins_sg.id]
+  security_groups    = [aws_security_group.https_sg.id]
   subnets            = var.public_subnets_ids
   access_logs {
     bucket  = resource.aws_s3_bucket.s3_logs_bucket.bucket
@@ -169,8 +171,9 @@ resource "aws_alb_target_group" "jenkins_alb_tg" {
 
 resource "aws_alb_listener" "jenkins_alb_listener" {
   load_balancer_arn = aws_alb.jenkins_alb.arn
-  port              = "80"
-  protocol          = "HTTP"
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = var.kandula_ssl_cert
   default_action {
     type             = "forward"
     target_group_arn = aws_alb_target_group.jenkins_alb_tg.arn
@@ -180,6 +183,28 @@ resource "aws_alb_listener" "jenkins_alb_listener" {
 # Security Groups
 
 #Consul Security Group
+resource "aws_security_group" "https_sg" {
+  name        = "https_sg"
+  description = "Security group for HTTPS Access"
+  vpc_id      = var.vpc_id
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  dynamic "ingress" {
+    iterator = port
+    for_each = var.https_ingress_ports
+    content {
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+}
 
 resource "aws_security_group" "consul_servers_sg" {
   name        = "consul_servers_sg"

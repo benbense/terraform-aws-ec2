@@ -77,6 +77,18 @@ variable "ssh_ingress_ports" {
   default     = [22]
 }
 
+variable "https_ingress_ports" {
+  type        = list(number)
+  description = "HTTPS ingress ports"
+  default     = [443]
+}
+
+variable "ssl_security_policy" {
+  type        = string
+  description = "SSL Security Policy"
+  default     = "ELBSecurityPolicy-2016-08"
+}
+
 variable "servers_tags_structure" {
   type        = list(string)
   description = "Consul server tags map"
@@ -98,3 +110,7 @@ variable "elb_account_id" {
   type        = string
 }
 
+variable "kandula_ssl_cert" {
+  description = "ARN of SSL Certificate"
+  type = string
+}
