@@ -112,5 +112,9 @@ variable "elb_account_id" {
 
 variable "kandula_ssl_cert" {
   description = "ARN of SSL Certificate"
-  type = string
+  type        = string
+}
+variable "ssl_policy" {
+  description = "SSL Security Policy"
+  type        = string
 }
