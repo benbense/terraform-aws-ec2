@@ -116,11 +116,11 @@ resource "aws_alb_target_group" "consul_alb_tg" {
 }
 
 resource "aws_alb_listener" "consul_alb_listener" {
-  load_balancer_arn      = aws_alb.consul_alb.arn
-  port                   = "443"
-  protocol               = "HTTPS"
-  ssl_policy             = var.ssl_policy
-  certificertificate_arn = var.kandula_ssl_cert
+  load_balancer_arn = aws_alb.consul_alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = var.ssl_policy
+  certificate_arn   = var.kandula_ssl_cert
   default_action {
     type             = "forward"
     target_group_arn = aws_alb_target_group.consul_alb_tg.arn
