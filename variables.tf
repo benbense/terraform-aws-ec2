@@ -117,4 +117,5 @@ variable "kandula_ssl_cert" {
 variable "ssl_policy" {
   description = "SSL Security Policy"
   type        = string
+  default = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
 }
