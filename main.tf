@@ -9,6 +9,29 @@
 ###############################################################
 
 ########################EC2 Instances##########################
+# Grafana Server
+resource "aws_instance" "grafana_server" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type
+  subnet_id              = var.private_subnets_ids[0]
+  vpc_security_group_ids = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.grafana_sg.id]
+  key_name               = var.server_key
+  source_dest_check      = false
+  iam_instance_profile   = var.instance_profile_name
+  tags                   = zipmap(var.servers_tags_structure, ["grafana", "monitoring", "server", "Grafana-Server", "private", "kandula", "Ben", "true", "ubuntu"])
+}
+
+# Prometheus Server
+resource "aws_instance" "prometheus_server" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type
+  subnet_id              = var.private_subnets_ids[0]
+  vpc_security_group_ids = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.prometheus_sg.id, aws_security_group.node_exporter_sg.id]
+  key_name               = var.server_key
+  source_dest_check      = false
+  iam_instance_profile   = var.instance_profile_name
+  tags                   = zipmap(var.servers_tags_structure, ["prometheus", "monitoring", "server", "Prometheus-Server", "private", "kandula", "Ben", "true", "ubuntu"])
+}
 
 # Consul Servers
 resource "aws_instance" "consul_servers" {
@@ -16,7 +39,7 @@ resource "aws_instance" "consul_servers" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
   subnet_id              = element(var.private_subnets_ids, count.index)
-  vpc_security_group_ids = [aws_security_group.consul_servers_sg.id, aws_security_group.ssh_ingress.id]
+  vpc_security_group_ids = [aws_security_group.consul_servers_sg.id, aws_security_group.ssh_ingress.id, aws_security_group.node_exporter_sg.id]
   key_name               = var.server_key
   source_dest_check      = false
   iam_instance_profile   = var.instance_profile_name
@@ -28,7 +51,7 @@ resource "aws_instance" "jenkins_server" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
   subnet_id              = var.private_subnets_ids[0]
-  vpc_security_group_ids = [aws_security_group.jenkins_sg.id, aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id]
+  vpc_security_group_ids = [aws_security_group.jenkins_sg.id, aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.node_exporter_sg.id]
   key_name               = var.server_key
   source_dest_check      = false
   iam_instance_profile   = var.instance_profile_name
@@ -40,7 +63,7 @@ resource "aws_instance" "jenkins_nodes" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
   subnet_id              = element(var.private_subnets_ids, count.index)
-  vpc_security_group_ids = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id]
+  vpc_security_group_ids = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.node_exporter_sg.id]
   key_name               = var.server_key
   source_dest_check      = false
   iam_instance_profile   = var.instance_profile_name
@@ -51,7 +74,7 @@ resource "aws_instance" "bastion_server" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.instance_type
   subnet_id                   = var.public_subnets_ids[0]
-  vpc_security_group_ids      = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id]
+  vpc_security_group_ids      = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.node_exporter_sg.id]
   key_name                    = var.server_key
   associate_public_ip_address = true
   iam_instance_profile        = var.instance_profile_name
@@ -62,7 +85,7 @@ resource "aws_instance" "ansible_server" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
   subnet_id              = var.private_subnets_ids[0]
-  vpc_security_group_ids = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id]
+  vpc_security_group_ids = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.node_exporter_sg.id]
   key_name               = var.server_key
   source_dest_check      = false
   iam_instance_profile   = var.instance_profile_name
@@ -183,6 +206,79 @@ resource "aws_alb_listener" "jenkins_alb_listener" {
 }
 
 # Security Groups
+
+# Grafana Security Group
+resource "aws_security_group" "grafana_sg" {
+  name        = "grafana_sg"
+  description = "Security group for Grafana"
+  vpc_id      = var.vpc_id
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  dynamic "ingress" {
+    iterator = port
+    for_each = var.grafana_ingress_ports
+    content {
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+}
+
+
+# Node Exporter Security Group
+resource "aws_security_group" "node_exporter_sg" {
+  name        = "node_exporter_sg"
+  description = "Security group for Node Exporter"
+  vpc_id      = var.vpc_id
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  dynamic "ingress" {
+    iterator = port
+    for_each = var.node_exporter_ingress_ports
+    content {
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+}
+
+# Prometheus Security Group
+resource "aws_security_group" "prometheus_sg" {
+  name        = "prometheus_sg"
+  description = "Security group for Prometheus DB and Web Access"
+  vpc_id      = var.vpc_id
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  dynamic "ingress" {
+    iterator = port
+    for_each = var.prometheus_ingress_ports
+    content {
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+}
 
 #Consul Security Group
 resource "aws_security_group" "https_sg" {

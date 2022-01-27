@@ -83,6 +83,25 @@ variable "https_ingress_ports" {
   default     = [443]
 }
 
+variable "prometheus_ingress_ports" {
+  type        = list(number)
+  description = "Prometheus ingress ports"
+  default     = [9090]
+}
+
+variable "grafana_ingress_ports" {
+  type        = list(number)
+  description = "Grafana ingress ports"
+  default     = [3000]
+}
+
+
+variable "node_exporter_ingress_ports" {
+  type        = list(string)
+  description = "Node Exporter ingress ports"
+  default     = [9100]
+}
+
 variable "ssl_security_policy" {
   type        = string
   description = "SSL Security Policy"
@@ -117,5 +136,5 @@ variable "kandula_ssl_cert" {
 variable "ssl_policy" {
   description = "SSL Security Policy"
   type        = string
-  default = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
+  default     = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
 }
