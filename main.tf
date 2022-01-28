@@ -23,14 +23,15 @@ resource "aws_instance" "grafana_server" {
 
 # Prometheus Server
 resource "aws_instance" "prometheus_server" {
-  ami                    = data.aws_ami.ubuntu.id
-  instance_type          = var.instance_type
-  subnet_id              = var.private_subnets_ids[0]
-  vpc_security_group_ids = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.prometheus_sg.id, aws_security_group.node_exporter_sg.id]
-  key_name               = var.server_key
-  source_dest_check      = false
-  iam_instance_profile   = var.instance_profile_name
-  tags                   = zipmap(var.servers_tags_structure, ["prometheus", "monitoring", "server", "Prometheus-Server", "private", "kandula", "Ben", "true", "ubuntu"])
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = var.instance_type
+  subnet_id                   = var.private_subnets_ids[0]
+  vpc_security_group_ids      = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.prometheus_sg.id, aws_security_group.node_exporter_sg.id]
+  key_name                    = var.server_key
+  source_dest_check           = false
+  associate_public_ip_address = true
+  iam_instance_profile        = var.instance_profile_name
+  tags                        = zipmap(var.servers_tags_structure, ["prometheus", "monitoring", "server", "Prometheus-Server", "private", "kandula", "Ben", "true", "ubuntu"])
 }
 
 # Consul Servers
