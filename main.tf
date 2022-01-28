@@ -23,15 +23,14 @@ resource "aws_instance" "grafana_server" {
 
 # Prometheus Server
 resource "aws_instance" "prometheus_server" {
-  ami                         = data.aws_ami.ubuntu.id
-  instance_type               = var.instance_type
-  subnet_id                   = var.private_subnets_ids[0]
-  vpc_security_group_ids      = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.prometheus_sg.id, aws_security_group.node_exporter_sg.id]
-  key_name                    = var.server_key
-  source_dest_check           = false
-  associate_public_ip_address = true
-  iam_instance_profile        = var.instance_profile_name
-  tags                        = zipmap(var.servers_tags_structure, ["prometheus", "monitoring", "server", "Prometheus-Server", "private", "kandula", "Ben", "true", "ubuntu"])
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type
+  subnet_id              = var.private_subnets_ids[0]
+  vpc_security_group_ids = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.prometheus_sg.id, aws_security_group.node_exporter_sg.id]
+  key_name               = var.server_key
+  source_dest_check      = false
+  iam_instance_profile   = var.instance_profile_name
+  tags                   = zipmap(var.servers_tags_structure, ["prometheus", "monitoring", "server", "Prometheus-Server", "private", "kandula", "Ben", "true", "ubuntu"])
 }
 
 # Consul Servers
@@ -258,6 +257,62 @@ resource "aws_alb_listener" "grafana_alb_listener" {
   default_action {
     type             = "forward"
     target_group_arn = aws_alb_target_group.grafana_alb_tg.arn
+  }
+}
+
+
+# Prometheus ALB
+
+resource "aws_alb" "prometheus_alb" {
+  name               = "prometheus-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.https_sg.id]
+  subnets            = var.public_subnets_ids
+  access_logs {
+    bucket  = resource.aws_s3_bucket.s3_logs_bucket.bucket
+    prefix  = "logs/prometheus-alb"
+    enabled = true
+  }
+}
+
+resource "aws_alb_target_group_attachment" "prometheus_server_alb_attach" {
+  target_group_arn = aws_alb_target_group.prometheus_alb_tg.arn
+  target_id        = aws_instance.prometheus_server.id
+  port             = 3000
+}
+
+
+resource "aws_alb_target_group" "prometheus_alb_tg" {
+  name     = "prometheus-alb-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+  stickiness {
+    type            = "lb_cookie"
+    cookie_duration = 60
+    enabled         = true
+  }
+  health_check {
+    port                = 9090
+    protocol            = "HTTP"
+    path                = "/"
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    interval            = 10
+  }
+}
+
+resource "aws_alb_listener" "prometheus_alb_listener" {
+  load_balancer_arn = aws_alb.prometheus_alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = var.ssl_policy
+  certificate_arn   = var.kandula_ssl_cert
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.prometheus_alb_tg.arn
   }
 }
 
