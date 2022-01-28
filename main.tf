@@ -152,8 +152,8 @@ resource "aws_alb_listener" "consul_https_alb_listener" {
 
 resource "aws_alb_listener" "consul_http_alb_listener" {
   load_balancer_arn = aws_alb.consul_alb.arn
-  port              = "443"
-  protocol          = "HTTPS"
+  port              = "80"
+  protocol          = "HTTP"
   default_action {
     type = "redirect"
     redirect {
@@ -221,8 +221,8 @@ resource "aws_alb_listener" "jenkins_https_alb_listener" {
 
 resource "aws_alb_listener" "jenkins_http_alb_listener" {
   load_balancer_arn = aws_alb.jenkins_alb.arn
-  port              = "443"
-  protocol          = "HTTPS"
+  port              = "80"
+  protocol          = "HTTP"
   default_action {
     type = "redirect"
     redirect {
@@ -289,8 +289,8 @@ resource "aws_alb_listener" "grafana_https_alb_listener" {
 
 resource "aws_alb_listener" "grafana_http_alb_listener" {
   load_balancer_arn = aws_alb.grafana_alb.arn
-  port              = "443"
-  protocol          = "HTTPS"
+  port              = "80"
+  protocol          = "HTTP"
   default_action {
     type = "redirect"
     redirect {
