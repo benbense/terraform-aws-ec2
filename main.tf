@@ -100,7 +100,7 @@ resource "aws_alb" "consul_alb" {
   name               = "consul-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.https_sg.id]
+  security_groups    = [aws_security_group.https_sg.id, aws_security_group.http_sg.id]
   subnets            = var.public_subnets_ids
   access_logs {
     bucket  = resource.aws_s3_bucket.s3_logs_bucket.bucket
@@ -138,7 +138,7 @@ resource "aws_alb_target_group" "consul_alb_tg" {
   }
 }
 
-resource "aws_alb_listener" "consul_alb_listener" {
+resource "aws_alb_listener" "consul_https_alb_listener" {
   load_balancer_arn = aws_alb.consul_alb.arn
   port              = "443"
   protocol          = "HTTPS"
@@ -150,13 +150,27 @@ resource "aws_alb_listener" "consul_alb_listener" {
   }
 }
 
+resource "aws_alb_listener" "consul_http_alb_listener" {
+  load_balancer_arn = aws_alb.consul_alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  default_action {
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
 # Jenkins ALB
 
 resource "aws_alb" "jenkins_alb" {
   name               = "jenkins-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.https_sg.id]
+  security_groups    = [aws_security_group.https_sg.id, aws_security_group.http_sg.id]
   subnets            = var.public_subnets_ids
   access_logs {
     bucket  = resource.aws_s3_bucket.s3_logs_bucket.bucket
@@ -193,7 +207,7 @@ resource "aws_alb_target_group" "jenkins_alb_tg" {
   }
 }
 
-resource "aws_alb_listener" "jenkins_alb_listener" {
+resource "aws_alb_listener" "jenkins_https_alb_listener" {
   load_balancer_arn = aws_alb.jenkins_alb.arn
   port              = "443"
   protocol          = "HTTPS"
@@ -205,13 +219,26 @@ resource "aws_alb_listener" "jenkins_alb_listener" {
   }
 }
 
+resource "aws_alb_listener" "jenkins_http_alb_listener" {
+  load_balancer_arn = aws_alb.jenkins_alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  default_action {
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
 # Grafana ALB
 
 resource "aws_alb" "grafana_alb" {
   name               = "grafana-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.https_sg.id]
+  security_groups    = [aws_security_group.https_sg.id, aws_security_group.http_sg.id]
   subnets            = var.public_subnets_ids
   access_logs {
     bucket  = resource.aws_s3_bucket.s3_logs_bucket.bucket
@@ -248,7 +275,7 @@ resource "aws_alb_target_group" "grafana_alb_tg" {
   }
 }
 
-resource "aws_alb_listener" "grafana_alb_listener" {
+resource "aws_alb_listener" "grafana_https_alb_listener" {
   load_balancer_arn = aws_alb.grafana_alb.arn
   port              = "443"
   protocol          = "HTTPS"
@@ -257,6 +284,20 @@ resource "aws_alb_listener" "grafana_alb_listener" {
   default_action {
     type             = "forward"
     target_group_arn = aws_alb_target_group.grafana_alb_tg.arn
+  }
+}
+
+resource "aws_alb_listener" "grafana_http_alb_listener" {
+  load_balancer_arn = aws_alb.grafana_alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  default_action {
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }
 
@@ -351,6 +392,29 @@ resource "aws_security_group" "https_sg" {
   dynamic "ingress" {
     iterator = port
     for_each = var.https_ingress_ports
+    content {
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+}
+
+resource "aws_security_group" "http_sg" {
+  name        = "http_sg"
+  description = "Security group for HTTP Access"
+  vpc_id      = var.vpc_id
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  dynamic "ingress" {
+    iterator = port
+    for_each = var.http_ingress_ports
     content {
       from_port   = port.value
       to_port     = port.value

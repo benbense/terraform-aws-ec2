@@ -83,6 +83,12 @@ variable "https_ingress_ports" {
   default     = [443]
 }
 
+variable "http_ingress_ports" {
+  type        = list(number)
+  description = "HTTP ingress ports"
+  default     = [80]
+}
+
 variable "prometheus_ingress_ports" {
   type        = list(number)
   description = "Prometheus ingress ports"
