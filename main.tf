@@ -261,61 +261,6 @@ resource "aws_alb_listener" "grafana_alb_listener" {
 }
 
 
-# Prometheus ALB
-
-resource "aws_alb" "prometheus_alb" {
-  name               = "prometheus-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.https_sg.id]
-  subnets            = var.public_subnets_ids
-  access_logs {
-    bucket  = resource.aws_s3_bucket.s3_logs_bucket.bucket
-    prefix  = "logs/prometheus-alb"
-    enabled = true
-  }
-}
-
-resource "aws_alb_target_group_attachment" "prometheus_server_alb_attach" {
-  target_group_arn = aws_alb_target_group.prometheus_alb_tg.arn
-  target_id        = aws_instance.prometheus_server.id
-  port             = 3000
-}
-
-
-resource "aws_alb_target_group" "prometheus_alb_tg" {
-  name     = "prometheus-alb-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
-  stickiness {
-    type            = "lb_cookie"
-    cookie_duration = 60
-    enabled         = true
-  }
-  health_check {
-    port                = 9090
-    protocol            = "HTTP"
-    path                = "/"
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 3
-    interval            = 10
-  }
-}
-
-resource "aws_alb_listener" "prometheus_alb_listener" {
-  load_balancer_arn = aws_alb.prometheus_alb.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = var.ssl_policy
-  certificate_arn   = var.kandula_ssl_cert
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_alb_target_group.prometheus_alb_tg.arn
-  }
-}
-
 # Security Groups
 
 # Grafana Security Group
