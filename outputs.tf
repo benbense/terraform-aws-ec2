@@ -38,6 +38,11 @@ output "jenkins_alb_public_dns" {
   value       = aws_alb.jenkins_alb.dns_name
 }
 
+output "grafana_alb_public_dns" {
+  description = "Grafana ALB Public DNS name"
+  value       = aws_alb.grafana_alb.dns_name
+}
+
 output "jenkins_nodes_arns" {
   description = "ARN of the Jenkins Nodes Instances"
   value       = aws_instance.jenkins_nodes.*.arn
