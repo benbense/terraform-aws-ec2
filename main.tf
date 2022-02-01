@@ -14,7 +14,7 @@ resource "aws_instance" "grafana_server" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
   subnet_id              = var.private_subnets_ids[0]
-  vpc_security_group_ids = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.grafana_sg.id]
+  vpc_security_group_ids = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.grafana_sg.id, aws_security_group.node_exporter_sg.id]
   key_name               = var.server_key
   source_dest_check      = false
   iam_instance_profile   = var.instance_profile_name
