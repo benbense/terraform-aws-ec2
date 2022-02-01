@@ -1,8 +1,3 @@
-variable "private_key_path" {
-  description = "Private key path"
-  default     = "C:\\Keys\\Homework1.pem"
-}
-
 data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["099720109477"]
