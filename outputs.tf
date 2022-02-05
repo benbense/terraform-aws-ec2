@@ -43,6 +43,11 @@ output "grafana_alb_public_dns" {
   value       = aws_alb.grafana_alb.dns_name
 }
 
+output "prometheus_alb_public_dns" {
+  description = "Prometheus ALB Public DNS name"
+  value       = aws_alb.prometheus_alb.dns_name
+}
+
 output "jenkins_nodes_arns" {
   description = "ARN of the Jenkins Nodes Instances"
   value       = aws_instance.jenkins_nodes.*.arn
