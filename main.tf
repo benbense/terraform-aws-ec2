@@ -92,6 +92,17 @@ resource "aws_instance" "ansible_server" {
   tags                   = zipmap(var.servers_tags_structure, ["ansible", "configuration_management", "server", "Ansible-Server", "private", "kandula", "Ben", "true", "ubuntu"])
 }
 
+resource "aws_instance" "elk_server" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type
+  subnet_id              = var.private_subnets_ids[0]
+  vpc_security_group_ids = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.node_exporter_sg.id, aws_security_group.elk_servers_sg.id]
+  key_name               = var.server_key
+  source_dest_check      = false
+  iam_instance_profile   = var.instance_profile_name
+  tags                   = zipmap(var.servers_tags_structure, ["elk", "logging", "server", "ELK-Server", "private", "kandula", "Ben", "true", "ubuntu"])
+}
+
 ######################## ALB's ###########################
 
 #Consul ALB
@@ -334,7 +345,7 @@ resource "aws_alb_target_group" "prometheus_alb_tg" {
     enabled         = true
   }
   health_check {
-    port                = 3000
+    port                = 9090
     protocol            = "HTTP"
     path                = "/status"
     healthy_threshold   = 2
@@ -358,6 +369,75 @@ resource "aws_alb_listener" "prometheus_https_alb_listener" {
 
 resource "aws_alb_listener" "prometheus_http_alb_listener" {
   load_balancer_arn = aws_alb.prometheus_alb.arn
+  port              = "80"
+  protocol          = "HTTP"
+  default_action {
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+# ELK ALB
+
+resource "aws_alb" "elk_alb" {
+  name               = "elk-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.https_sg.id, aws_security_group.http_sg.id]
+  subnets            = var.public_subnets_ids
+  access_logs {
+    bucket  = resource.aws_s3_bucket.s3_logs_bucket.bucket
+    prefix  = "logs/elk-alb"
+    enabled = true
+  }
+}
+
+resource "aws_alb_target_group_attachment" "elk_server_alb_attach" {
+  target_group_arn = aws_alb_target_group.elk_alb_tg.arn
+  target_id        = aws_instance.elk_server.id
+  port             = 5601
+}
+
+
+resource "aws_alb_target_group" "elk_alb_tg" {
+  name     = "elk-alb-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+  stickiness {
+    type            = "lb_cookie"
+    cookie_duration = 60
+    enabled         = true
+  }
+  health_check {
+    port                = 5601
+    protocol            = "HTTP"
+    path                = "/status"
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    interval            = 10
+  }
+}
+
+resource "aws_alb_listener" "elk_https_alb_listener" {
+  load_balancer_arn = aws_alb.elk_alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = var.ssl_policy
+  certificate_arn   = var.kandula_ssl_cert
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.elk_alb_tg.arn
+  }
+}
+
+resource "aws_alb_listener" "elk_http_alb_listener" {
+  load_balancer_arn = aws_alb.elk_alb.arn
   port              = "80"
   protocol          = "HTTP"
   default_action {
@@ -657,6 +737,35 @@ resource "aws_security_group" "outbound_any" {
   }
 }
 
+resource "aws_security_group" "elk_servers_sg" {
+  name        = "elk_servers_sg"
+  description = "Security group for ELK servers"
+  vpc_id      = var.vpc_id
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  dynamic "ingress" {
+    iterator = port
+    for_each = var.elk_ingress_ports
+    content {
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
+  ingress {
+    from_port   = 8
+    to_port     = 0
+    protocol    = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
 
 ########################### S3 ##########################
 

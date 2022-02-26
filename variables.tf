@@ -96,6 +96,11 @@ variable "grafana_ingress_ports" {
   default     = [3000]
 }
 
+variable "elk_ingress_ports" {
+  type        = list(number)
+  description = "ELK ingress ports"
+  default     = [9200, 9300, 5601]
+}
 
 variable "node_exporter_ingress_ports" {
   type        = list(string)
