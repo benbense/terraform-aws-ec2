@@ -94,7 +94,7 @@ resource "aws_instance" "ansible_server" {
 
 resource "aws_instance" "elk_server" {
   ami                    = data.aws_ami.ubuntu.id
-  instance_type          = "t3.small"
+  instance_type          = "t3.medium"
   subnet_id              = var.private_subnets_ids[0]
   vpc_security_group_ids = [aws_security_group.ssh_ingress.id, aws_security_group.consul_agents_sg.id, aws_security_group.node_exporter_sg.id, aws_security_group.elk_servers_sg.id]
   key_name               = var.server_key
