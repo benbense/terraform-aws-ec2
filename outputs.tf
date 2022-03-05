@@ -57,3 +57,8 @@ output "jenkins_nodes_ids" {
   description = "ID of the Jenkins Nodes Instances"
   value       = aws_instance.jenkins_nodes.*.id
 }
+
+output "elk_server_private_ip" {
+  description = "Private IP of the ELK server"
+  value       = aws_instance.elk_server.*.private_ip
+}
