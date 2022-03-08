@@ -815,7 +815,7 @@ resource "aws_s3_bucket_policy" "this" {
 
 resource "aws_route53_record" "elk_server" {
   zone_id = var.route53_zone_id
-  name    = "${aws_instance.elk_server.name}.kandula"
+  name    = "elk.kandula"
   type    = "A"
   ttl     = "300"
   records = aws_instance.elk_server.private_ip
