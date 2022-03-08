@@ -63,7 +63,3 @@ output "elk_server_private_ip" {
   value       = aws_instance.elk_server.*.private_ip
 }
 
-output "route53_zone_id" {
-  description = "Hosted Zone ID"
-  value = aws_route53_zone.private.zone_id
-}

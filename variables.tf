@@ -144,3 +144,8 @@ variable "ssl_policy" {
   type        = string
   default     = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
 }
+
+variable "route53_zone_id" {
+  description = "Hosted Zone ID"
+  type        = string
+}
