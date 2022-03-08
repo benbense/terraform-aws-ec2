@@ -812,3 +812,10 @@ resource "aws_s3_bucket_policy" "this" {
     ]
   })
 }
+
+resource "aws_route53_zone" "private" {
+  name = "kandula"
+  vpc {
+    vpc_id = var.vpc_id
+  }
+}
