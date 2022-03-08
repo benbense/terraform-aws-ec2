@@ -818,5 +818,5 @@ resource "aws_route53_record" "elk_server" {
   name    = "elk.kandula"
   type    = "A"
   ttl     = "300"
-  records = aws_instance.elk_server.private_ip
+  records = ["${aws_instance.elk_server.private_ip}"]
 }
