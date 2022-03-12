@@ -545,7 +545,7 @@ resource "aws_security_group" "https_sg" {
       from_port   = port.value
       to_port     = port.value
       protocol    = "tcp"
-      cidr_blocks = [var.cidr_block]
+      cidr_blocks = ["0.0.0.0/0"]
     }
   }
 }
@@ -568,7 +568,7 @@ resource "aws_security_group" "http_sg" {
       from_port   = port.value
       to_port     = port.value
       protocol    = "tcp"
-      cidr_blocks = [var.cidr_block]
+      cidr_blocks = ["0.0.0.0/0"]
     }
   }
 }
