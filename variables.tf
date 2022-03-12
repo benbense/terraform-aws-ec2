@@ -149,3 +149,7 @@ variable "route53_zone_id" {
   description = "Hosted Zone ID"
   type        = string
 }
+
+variable "cidr_block" {
+  description = "VPC CIDR Block"
+}
