@@ -51,13 +51,13 @@ variable "jenkins_nodes_count" {
 variable "consul_server_ingress_ports" {
   type        = list(number)
   description = "Consul ingress ports list"
-  default     = [8600, 8500, 8300, 8301]
+  default     = [8600, 8500, 8300, 8301, 8302]
 }
 
 variable "consul_agent_ingress_ports" {
   type        = list(number)
   description = "Consul agent ingress ports list"
-  default     = [8301, 8600]
+  default     = [8301, 8302, 8600]
 }
 
 variable "jenkins_ingress_ports" {

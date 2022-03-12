@@ -595,6 +595,17 @@ resource "aws_security_group" "consul_servers_sg" {
     }
   }
 
+  dynamic "ingress" {
+    iterator = port
+    for_each = var.consul_server_ingress_ports
+    content {
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "udp"
+      cidr_blocks = [var.cidr_block]
+    }
+  }
+
   ingress {
     from_port   = 8
     to_port     = 0
@@ -621,6 +632,16 @@ resource "aws_security_group" "consul_agents_sg" {
       from_port   = port.value
       to_port     = port.value
       protocol    = "tcp"
+      cidr_blocks = [var.cidr_block]
+    }
+  }
+  dynamic "ingress" {
+    iterator = port
+    for_each = var.consul_server_ingress_ports
+    content {
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "udp"
       cidr_blocks = [var.cidr_block]
     }
   }
