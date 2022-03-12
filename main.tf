@@ -462,7 +462,7 @@ resource "aws_security_group" "grafana_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [var.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   dynamic "ingress" {
@@ -487,7 +487,7 @@ resource "aws_security_group" "node_exporter_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [var.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   dynamic "ingress" {
@@ -511,7 +511,7 @@ resource "aws_security_group" "prometheus_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [var.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   dynamic "ingress" {
@@ -535,7 +535,7 @@ resource "aws_security_group" "https_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [var.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   dynamic "ingress" {
@@ -558,7 +558,7 @@ resource "aws_security_group" "http_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [var.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   dynamic "ingress" {
@@ -581,7 +581,7 @@ resource "aws_security_group" "consul_servers_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [var.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   dynamic "ingress" {
@@ -611,7 +611,7 @@ resource "aws_security_group" "consul_agents_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [var.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   dynamic "ingress" {
@@ -641,7 +641,7 @@ resource "aws_security_group" "jenkins_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [var.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   dynamic "ingress" {
@@ -672,7 +672,7 @@ resource "aws_security_group" "ssh_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [var.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   dynamic "ingress" {
@@ -709,34 +709,6 @@ resource "aws_security_group" "inbound_http_any" {
   }
 }
 
-# Enable SSH access to port 22
-resource "aws_security_group" "inbound_ssh_any" {
-  vpc_id = var.vpc_id
-  ingress {
-    cidr_blocks = [var.cidr_block]
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-  }
-  tags = {
-    "Name" = "inbound_ssh_any"
-  }
-}
-
-# Enable instance access to the world
-resource "aws_security_group" "outbound_any" {
-  vpc_id = var.vpc_id
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = -1
-    cidr_blocks = [var.cidr_block]
-  }
-  tags = {
-    "Name" = "outbound_any"
-  }
-}
-
 resource "aws_security_group" "elk_servers_sg" {
   name        = "elk_servers_sg"
   description = "Security group for ELK servers"
@@ -745,7 +717,7 @@ resource "aws_security_group" "elk_servers_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [var.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   dynamic "ingress" {
