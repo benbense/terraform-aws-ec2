@@ -61,10 +61,10 @@ resource "aws_instance" "jenkins_server" {
 resource "aws_instance" "jenkins_nodes" {
   count                  = var.jenkins_nodes_count
   ami                    = data.aws_ami.ubuntu.id
-  instance_type          = var.instance_type
+  instance_type          = "t3.medium"
   subnet_id              = element(var.private_subnets_ids, count.index)
   vpc_security_group_ids = [aws_security_group.ssh_sg.id, aws_security_group.consul_agents_sg.id, aws_security_group.node_exporter_sg.id]
-  key_name               = "t3.medium"
+  key_name               = var.server_key
   source_dest_check      = false
   iam_instance_profile   = var.instance_profile_name
   tags                   = zipmap(var.servers_tags_structure, ["jenkins", "cicd", "node", "Jenkins-Node-${count.index}", "private", "kandula", "Ben", "true", "ubuntu"])
