@@ -74,7 +74,7 @@ resource "aws_instance" "bastion_server" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.instance_type
   subnet_id                   = var.public_subnets_ids[0]
-  vpc_security_group_ids      = [aws_security_group.ssh_sg.id, aws_security_group.consul_agents_sg.id, aws_security_group.node_exporter_sg.id, aws_security_group.bastion_ssh_sg.id]
+  vpc_security_group_ids      = [aws_security_group.openvpn_sg.id ,aws_security_group.ssh_sg.id, aws_security_group.consul_agents_sg.id, aws_security_group.node_exporter_sg.id, aws_security_group.bastion_ssh_sg.id]
   key_name                    = var.server_key
   associate_public_ip_address = true
   iam_instance_profile        = var.instance_profile_name
@@ -782,6 +782,41 @@ resource "aws_security_group" "bastion_ssh_sg" {
     }
   }
 }
+
+resource "aws_security_group" "openvpn_sg" {
+  name        = "openvpn_sg"
+  description = "Security group for OpenVPN service"
+  vpc_id      = var.vpc_id
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  dynamic "ingress" {
+    iterator = port
+    for_each = var.openvpn_tcp
+    content {
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "tcp"
+      cidr_blocks = [var.cidr_block]
+    }
+  }
+
+  dynamic "ingress" {
+    iterator = port
+    for_each = var.openvpn_udp
+    content {
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "udp"
+      cidr_blocks = [var.cidr_block]
+    }
+  }
+}
+
 ########################### S3 ##########################
 
 resource "aws_s3_bucket" "s3_logs_bucket" {

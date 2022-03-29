@@ -72,6 +72,18 @@ variable "ssh_ingress_ports" {
   default     = [22]
 }
 
+variable "openvpn_udp" {
+  type        = list(number)
+  description = "OpenVPN UDP ports"
+  default     = [1194]
+}
+
+variable "openvpn_tcp" {
+  type        = list(number)
+  description = "OpenVPN TCP ports"
+  default     = [443]
+}
+
 variable "https_ingress_ports" {
   type        = list(number)
   description = "HTTPS ingress ports"
